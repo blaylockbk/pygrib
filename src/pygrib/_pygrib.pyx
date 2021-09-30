@@ -44,7 +44,7 @@ cdef _redtoreg(object nlonsin, npc.ndarray lonsperlat, npc.ndarray redgrid, \
         flons = <double>ilons
         for i from 0 <= i < nlons:
             # zxi is the grid index (relative to the reduced grid)
-            # of the i'th point on the full grid. 
+            # of the i'th point on the full grid.
             zxi = i * flons / nlons # goes from 0 to ilons
             im = <long>zxi
             zdx = zxi - <double>im
@@ -54,7 +54,7 @@ cdef _redtoreg(object nlonsin, npc.ndarray lonsperlat, npc.ndarray redgrid, \
                 # if one of the nearest values is missing, use nearest
                 # neighbor interpolation.
                 if redgrdptr[indx+im] == missvl or\
-                   redgrdptr[indx+ip] == missvl: 
+                   redgrdptr[indx+ip] == missvl:
                     if zdx < 0.5:
                         reggrdptr[n] = redgrdptr[indx+im]
                     else:
@@ -83,7 +83,7 @@ cdef extern from "Python.h":
 default_encoding = 'ascii'
 
 cdef extern from "numpy/arrayobject.h":
-    ctypedef int npy_intp 
+    ctypedef int npy_intp
     ctypedef extern class numpy.ndarray [object PyArrayObject]:
         cdef char *data
         cdef int nd
@@ -106,19 +106,19 @@ cdef extern from "grib_api.h":
         GRIB_TYPE_LONG
         GRIB_TYPE_DOUBLE
         GRIB_TYPE_STRING
-        GRIB_TYPE_BYTES 
-        GRIB_TYPE_SECTION 
-        GRIB_TYPE_LABEL 
-        GRIB_TYPE_MISSING 
-        GRIB_KEYS_ITERATOR_ALL_KEYS            
-        GRIB_KEYS_ITERATOR_SKIP_READ_ONLY         
-        GRIB_KEYS_ITERATOR_SKIP_OPTIONAL          
-        GRIB_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC  
-        GRIB_KEYS_ITERATOR_SKIP_CODED             
-        GRIB_KEYS_ITERATOR_SKIP_COMPUTED         
-        GRIB_KEYS_ITERATOR_SKIP_FUNCTION         
-        GRIB_KEYS_ITERATOR_SKIP_DUPLICATES       
-        GRIB_MISSING_LONG 
+        GRIB_TYPE_BYTES
+        GRIB_TYPE_SECTION
+        GRIB_TYPE_LABEL
+        GRIB_TYPE_MISSING
+        GRIB_KEYS_ITERATOR_ALL_KEYS
+        GRIB_KEYS_ITERATOR_SKIP_READ_ONLY
+        GRIB_KEYS_ITERATOR_SKIP_OPTIONAL
+        GRIB_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC
+        GRIB_KEYS_ITERATOR_SKIP_CODED
+        GRIB_KEYS_ITERATOR_SKIP_COMPUTED
+        GRIB_KEYS_ITERATOR_SKIP_FUNCTION
+        GRIB_KEYS_ITERATOR_SKIP_DUPLICATES
+        GRIB_MISSING_LONG
         GRIB_MISSING_DOUBLE
     int grib_get_size(grib_handle *h, char *name, size_t *size)
     int grib_get_native_type(grib_handle *h, char *name, int *type)
@@ -136,7 +136,7 @@ cdef extern from "grib_api.h":
     int grib_keys_iterator_next(grib_keys_iterator *kiter)
     char* grib_keys_iterator_get_name(grib_keys_iterator *kiter)
     int grib_handle_delete(grib_handle* h)
-    grib_handle* grib_handle_new_from_file(grib_context* c, FILE* f, int* error)        
+    grib_handle* grib_handle_new_from_file(grib_context* c, FILE* f, int* error)
     char* grib_get_error_message(int code)
     int grib_keys_iterator_delete( grib_keys_iterator* kiter)
     void grib_multi_support_on(grib_context* c)
@@ -262,7 +262,7 @@ def set_definitions_path(object eccodes_definition_path):
 if 'ECCODES_DEFINITION_PATH' in os.environ:
     _eccodes_datadir = os.environ['ECCODES_DEFINITION_PATH']
 else:
-    # definitions at level of package dir 
+    # definitions at level of package dir
     _tmp_path = os.path.join('share','eccodes','definitions')
     _definitions_path = os.path.join(os.path.dirname(__file__),_tmp_path)
     # if definitions path exists inside pygrib installation (as it does when installed
@@ -284,10 +284,10 @@ def get_definitions_path():
     If None, then definitions installed with linked eccodes lib are begin used.
     """
     global _eccodes_datadir
-    return _eccodes_datadir 
+    return _eccodes_datadir
 
 cdef class open(object):
-    """ 
+    """
     open(filename)
 
     returns GRIB file iterator object given GRIB filename. When iterated, returns
@@ -318,7 +318,7 @@ cdef class open(object):
         cdef grib_handle *gh
         cdef FILE *_fd
         bytestr = _strencode(filename)
-        self._fd = fopen(bytestr, "rb") 
+        self._fd = fopen(bytestr, "rb")
         if self._fd == NULL:
             raise IOError("could not open %s", filename)
         self._gh = NULL
@@ -337,7 +337,7 @@ cdef class open(object):
             if gh == NULL: break
             nmsgs = nmsgs + 1
         rewind(self._fd)
-        self.messages = nmsgs 
+        self.messages = nmsgs
         err =  grib_count_in_file(NULL, self._fd, &ncount)
         # if number of messages returned by grib_count_in_file
         # differs from brute-force method of counting, then
@@ -349,7 +349,7 @@ cdef class open(object):
     def __iter__(self):
         return self
     def __next__(self):
-        cdef grib_handle* gh 
+        cdef grib_handle* gh
         cdef int err
         if self.messagenumber == self.messages:
             raise StopIteration
@@ -396,8 +396,8 @@ cdef class open(object):
     def seek(self, msg, from_what=0):
         """
         seek(N,from_what=0)
-        
-        advance iterator N grib messages from beginning of file 
+
+        advance iterator N grib messages from beginning of file
         (if ``from_what=0``), from current position (if ``from_what=1``)
         or from the end of file (if ``from_what=2``)."""
         if from_what not in [0,1,2]:
@@ -433,7 +433,7 @@ cdef class open(object):
     def read(self,msgs=None):
         """
         read(N=None)
-        
+
         read N messages from current position, returning grib messages instances in a
         list.  If N=None, all the messages to the end of the file are read.
         ``pygrib.open(f).read()`` is equivalent to ``list(pygrib.open(f))``,
@@ -460,7 +460,7 @@ cdef class open(object):
         self._fd = NULL
 
     def __dealloc__(self):
-        # close file handle if there are no more references 
+        # close file handle if there are no more references
         # to the object.
         cdef int err
         if self._fd:
@@ -480,7 +480,7 @@ cdef class open(object):
     def message(self, N):
         """
         message(N)
-        
+
         retrieve N'th message in iterator.
         same as ``seek(N-1)`` followed by ``readline()``."""
         if N < 1:
@@ -501,7 +501,7 @@ in the iterator is searched for membership in the container.
 If keyword is a callable (has a ``_call__`` method), each grib
 message in the iterator is tested using the callable (which should
 return a boolean).
-If keyword is not a container object or a callable, each 
+If keyword is not a container object or a callable, each
 grib message in the iterator is tested for equality.
 
 Example usage:
@@ -542,7 +542,7 @@ Example usage:
         if ``return_msgs==True``, grib message instances are returned
         in a list"""
         cdef int err
-        if nmsgs < 0: 
+        if nmsgs < 0:
             raise ValueError('nmsgs must be >= 0 in _advance')
         if return_msgs: grbs=[]
         for n in range(self.messagenumber,self.messagenumber+nmsgs):
@@ -566,7 +566,7 @@ _private_atts =\
 def julian_to_datetime(object jd):
     """
     julian_to_datetime(julday)
-    
+
     convert Julian day number to python datetime instance.
 
     Used to create ``validDate`` and ``analDate`` attributes from
@@ -583,7 +583,7 @@ def julian_to_datetime(object jd):
 def datetime_to_julian(object d):
     """
     datetime_to_julian(date)
-    
+
     convert python datetime instance to Julian day number."""
     cdef double julday
     cdef int err
@@ -630,7 +630,7 @@ def fromstring(gribstring):
 def setdates(gribmessage grb):
     """
     setdates(grb)
-    
+
     set ``fcstimeunits``, ``analDate`` and ``validDate`` attributes using
     the ``julianDay``, ``forecastTime`` and ``indicatorOfUnitOfTimeRange`` keys.
     Called automatically when :py:class:`gribmessage` instance created,
@@ -648,7 +648,7 @@ def setdates(gribmessage grb):
             # if forecastTime doesn't exist, use end of stepRange.
             ftime = grb['stepRange'] # computed key, uses stepUnits
             # if it's a range, use the end of the range to define validDate
-            try: 
+            try:
                 ftime = float(ftime.split('-')[1])
             except:
                 ftime = None
@@ -729,7 +729,7 @@ cdef class gribmessage(object):
 
     :ivar messagenumber: The grib message number in the file.
 
-    :ivar projparams: A dictionary containing proj4 key/value pairs describing 
+    :ivar projparams: A dictionary containing proj4 key/value pairs describing
       the grid.  Set to ``None`` for unsupported grid types.
 
     :ivar expand_reduced:  If True (default), reduced lat/lon and gaussian grids
@@ -879,14 +879,14 @@ cdef class gribmessage(object):
             if self.valid_key('scaledValueOfLowerLimit') and\
                self.valid_key('scaleFactorOfLowerLimit'):
                if self['scaledValueOfLowerLimit'] and\
-                  self['scaleFactorOfLowerLimit']: 
+                  self['scaleFactorOfLowerLimit']:
                    lowerlim = self['scaledValueOfLowerLimit']/\
                               np.power(10.0,self['scaleFactorOfLowerLimit'])
             upperlim = None
             if self.valid_key('scaledValueOfUpperLimit') and\
                self.valid_key('scaleFactorOfUpperLimit'):
                if self['scaledValueOfUpperLimit'] and\
-                  self['scaleFactorOfUpperLimit']: 
+                  self['scaleFactorOfUpperLimit']:
                    upperlim = self['scaledValueOfUpperLimit']/\
                               np.power(10.0,self['scaleFactorOfUpperLimit'])
             if upperlim is not None and lowerlim is not None:
@@ -1020,7 +1020,7 @@ cdef class gribmessage(object):
             lonsubset = lons[mask]
             # reshape lat/lon grids so returned arrays are 2-d instead of 1-d
             reduced_expand = self['gridType'] in ['reduced_ll','reduced_gg'] and self.expand_reduced
-            if self['gridType'] in ['regular_gg','regular_ll'] or reduced_expand: 
+            if self['gridType'] in ['regular_gg','regular_ll'] or reduced_expand:
                 nlats = masklat[:,0].sum()
                 nlons = masklon[0,:].sum()
                 if ma.isMA(datsubset):
@@ -1103,7 +1103,7 @@ cdef class gribmessage(object):
     def __getitem__(self, key):
         """
         access values associated with grib keys.
-        
+
         The key ``values`` will return the data associated with the grib message.
         The data is returned as a numpy array, or if missing values or a bitmap
         are present, a numpy masked array.  Reduced lat/lon or gaussian grid
@@ -1317,7 +1317,7 @@ cdef class gribmessage(object):
 
     def _set_projparams(self):
         """
-        sets the ``projparams`` instance variable to a dictionary containing 
+        sets the ``projparams`` instance variable to a dictionary containing
         proj4 key/value pairs describing the grid.
         """
         projparams = {}
@@ -1361,7 +1361,7 @@ cdef class gribmessage(object):
                 projparams['b']=6356752.314
             elif self['shapeOfTheEarth'] == 2:
                 projparams['a']=6378160.0
-                projparams['b']=6356775.0 
+                projparams['b']=6356775.0
             elif self['shapeOfTheEarth'] == 1:
                 if self.has_key('scaleFactorOfRadiusOfSphericalEarth'):
                     scalea = self['scaleFactorOfRadiusOfSphericalEarth']
@@ -1498,7 +1498,7 @@ cdef class gribmessage(object):
             lats = self['distinctLatitudes']
             if lat2 < lat1 and lats[-1] > lats[0]: lats = lats[::-1]
             lons = self['distinctLongitudes']
-            lons,lats = np.meshgrid(lons,lats) 
+            lons,lats = np.meshgrid(lons,lats)
         elif self['gridType'] == 'reduced_gg': # reduced global gaussian grid
             if self.expand_reduced:
                 lat1 = self['latitudeOfFirstGridPointInDegrees']
@@ -1510,7 +1510,7 @@ cdef class gribmessage(object):
                 lon1 = self['longitudeOfFirstGridPointInDegrees']
                 lon2 = self['longitudeOfLastGridPointInDegrees']
                 lons = np.linspace(lon1,lon2,nx)
-                lons,lats = np.meshgrid(lons,lats) 
+                lons,lats = np.meshgrid(lons,lats)
             else:
                 lats = self['latitudes']
                 lons = self['longitudes']
@@ -1524,7 +1524,7 @@ cdef class gribmessage(object):
                 lon2 = self['longitudeOfLastGridPointInDegrees']
                 lons = np.linspace(lon1,lon2,nx)
                 lats = np.linspace(lat1,lat2,ny)
-                lons,lats = np.meshgrid(lons,lats) 
+                lons,lats = np.meshgrid(lons,lats)
             else:
                 lats = self['latitudes']
                 lons = self['longitudes']
@@ -1709,13 +1709,13 @@ cdef class gribmessage(object):
         return lats, lons
 
 cdef class index(object):
-    """ 
+    """
 index(filename, *args)
-    
+
 returns grib index object given GRIB filename indexed by keys given in
 *args.  The :py:class:`select` or ``__call__`` method can then be used to selected grib messages
 based on specified values of indexed keys.
-Unlike :py:meth:`open.select`, containers or callables cannot be used to 
+Unlike :py:meth:`open.select`, containers or callables cannot be used to
 select multiple key values.
 However, using :py:meth:`index.select` is much faster than :py:meth:`open.select`.
 
@@ -1800,7 +1800,7 @@ messages will not be indexed correctly""" % filename
             # if type is declared, save it (None if not declared)
             types = []
             for arg in args:
-                try: 
+                try:
                     type = arg.split(':')[1]
                 except IndexError:
                     type = None
@@ -1814,9 +1814,9 @@ messages will not be indexed correctly""" % filename
         """
 select(**kwargs)
 
-return a list of :py:class:`gribmessage` instances from grib index object 
+return a list of :py:class:`gribmessage` instances from grib index object
 corresponding to specific values of indexed keys (given by kwargs).
-Unlike :py:meth:`open.select`, containers or callables cannot be used to 
+Unlike :py:meth:`open.select`, containers or callables cannot be used to
 select multiple key values.
 However, using :py:meth:`index.select` is much faster than :py:meth:`open.select`.
 
