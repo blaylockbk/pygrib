@@ -326,7 +326,7 @@ cdef class open(object):
         cdef int err, ncount
         cdef grib_handle *gh
         # initalize Python level objects
-        self.name = filename
+        self.name = str(filename)
         self.closed = False
         self.messagenumber = 0
         # count number of messages in file.
@@ -1791,7 +1791,7 @@ messages will not be indexed correctly""" % filename
             grbs.close()
     def __init__(self, filename, *args):
         # initalize Python level objects
-        self.name = filename
+        self.name = str(filename)
         self.keys = None
         self.types = None
         if args != ():
